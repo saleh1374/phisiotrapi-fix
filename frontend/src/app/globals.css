@@ -1,0 +1,148 @@
+@import "@fontsource/vazirmatn/300.css";
+@import "@fontsource/vazirmatn/400.css";
+@import "@fontsource/vazirmatn/500.css";
+@import "@fontsource/vazirmatn/700.css";
+@import "@fontsource/vazirmatn/800.css";
+@import "@fontsource/vazirmatn/900.css";
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #1b2a4a;
+  --color-navy-light: #2c3f66;
+  --color-navy-dark: #131f38;
+  --color-emerald: #2d6a4f;
+  --color-emerald-light: #3f8a68;
+  --color-gold: #d4a373;
+  --color-gold-light: #e6c39a;
+  --color-cream: #faf7f2;
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Keep anchored sections clear of the sticky header. */
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: #ffffff;
+  background-image: radial-gradient(
+      circle at 15% 0%,
+      rgba(45, 106, 79, 0.045),
+      transparent 32rem
+    ),
+    radial-gradient(
+      circle at 85% 100%,
+      rgba(27, 42, 74, 0.04),
+      transparent 30rem
+    );
+  background-attachment: fixed;
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  /* No faux bold/italic: real Vazirmatn weights are loaded. */
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure nothing overflows horizontally on small screens (spec: 320px+). */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Nice, subtle focus ring for keyboard users (WCAG 2.1). */
+:focus-visible {
+  outline: 2px solid var(--color-emerald);
+  outline-offset: 2px;
+}
+
+/* Pointer affordances: clickable elements show a pointer, disabled ones don't. */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+select:not(:disabled),
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"]:disabled {
+  cursor: not-allowed;
+}
+
+/* Selection in brand colors. */
+::selection {
+  background-color: rgba(45, 106, 79, 0.22);
+  color: var(--color-navy-dark);
+}
+
+/* Subtle branded scrollbar (WebKit / Firefox). */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(27, 42, 74, 0.25);
+  border-radius: 999px;
+  border: 2px solid var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(27, 42, 74, 0.45);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(27, 42, 74, 0.3) var(--color-cream);
+}
+
+/* Fluid type scale across 320px → 1920px. */
+h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: clamp(1.375rem, 2.5vw, 2rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  letter-spacing: -0.005em;
+}
+
+/* Headings breathe a little better with the font's Persian spacing. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,114 @@
+# Development environment for the Physiotherapy Clinic platform.
+# Bring everything up with:  docker compose up --build
+#
+# For PRODUCTION, use: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: physio_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-physio_clinic}
+      POSTGRES_USER: ${POSTGRES_USER:-physio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-physio}
+    # Ports NOT exposed by default (internal only).
+    # Uncomment for local dev database access:
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-physio} -d ${POSTGRES_DB:-physio_clinic}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: physio_redis
+    # Ports NOT exposed by default (internal only).
+    # Uncomment for local dev Redis access:
+    # ports:
+    #   - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: physio_backend
+    # Development: use Django's runserver with auto-reload.
+    # Production: remove this command to use the Dockerfile's CMD (gunicorn).
+    command: sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_URL: redis://redis:6379/0
+      DJANGO_DEBUG: "True"
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: physio_frontend
+    # Development: use Next.js dev server with hot-reload.
+    # Production: remove this command to use the Dockerfile's CMD (standalone server).
+    command: sh -c "npm run dev"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+  celery-worker:
+    build: ./backend
+    container_name: physio_celery_worker
+    command: celery -A config worker -l info
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_URL: redis://redis:6379/0
+      DJANGO_DEBUG: "True"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build: ./backend
+    container_name: physio_celery_beat
+    command: celery -A config beat -l info
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_URL: redis://redis:6379/0
+      DJANGO_DEBUG: "True"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      celery-worker:
+        condition: service_started
+
+volumes:
+  pgdata:

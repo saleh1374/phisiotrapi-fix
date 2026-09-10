@@ -1,0 +1,19 @@
+{
+  "name": "کلینیک فیزیوتراپی",
+  "short_name": "کلینیک",
+  "description": "رزرو نوبت آنلاین، فیلم‌های آموزشی، آکادمی تخصصی و مجله علمی فیزیوتراپی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1b2a4a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
